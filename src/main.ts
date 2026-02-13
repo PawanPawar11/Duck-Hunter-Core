@@ -7,9 +7,15 @@ k.scene("game", () => {
   let score = 0;
   let bullets = 3;
 
+  let round = 1;
+  let ducksShotThisRound = 0;
+  let duckSpeed = 120;
+
   const scoreText = k.add([k.text("Score: 0"), k.pos(10, 10)]);
 
   const bulletText = k.add([k.text("Bullets: 3"), k.pos(10, 40)]);
+
+  const roundText = k.add([k.text("Round: 1"), k.pos(10, 70)]);
 
   // -----------------------------
   // CURSOR
@@ -39,7 +45,7 @@ k.scene("game", () => {
 
     // if duck exists, move it
     if (duck.exists()) {
-      duck.move(120, 0);
+      duck.move(duckSpeed, 0);
 
       // Duck escaped screen
       if (duck.pos.x > k.width()) {
@@ -66,9 +72,25 @@ k.scene("game", () => {
       k.destroy(duck);
 
       score++;
+      ducksShotThisRound++;
+
       scoreText.text = "Score: " + score;
 
-      duck = spawnDuck();
+      // Check if round finished
+      if (ducksShotThisRound >= 5) {
+        round++;
+        ducksShotThisRound = 0;
+        duckSpeed += 40;
+
+        roundText.text = "Round: " + round;
+
+        k.wait(1, () => {
+          duck = spawnDuck();
+        });
+      } else {
+        duck = spawnDuck();
+      }
+
       bullets = 3;
       bulletText.text = "Bullets: 3";
     }
