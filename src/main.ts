@@ -1,15 +1,21 @@
 import k from "./kaplayCtx";
+import gameManager from "./gameManager";
+
+k.scene("menu", () => {
+  k.add([k.text("DUCK HUNTER"), k.pos(200, 150)]);
+
+  k.add([k.text("CLICK TO START"), k.pos(200, 200)]);
+
+  k.onMousePress(() => {
+    gameManager.resetGame();
+    k.go("game");
+  });
+});
 
 k.scene("game", () => {
   // -----------------------------
   // SCORE + BULLETS
   // -----------------------------
-  let score = 0;
-  let bullets = 3;
-
-  let round = 1;
-  let ducksShotThisRound = 0;
-  let duckSpeed = 120;
 
   const scoreText = k.add([k.text("Score: 0"), k.pos(10, 10)]);
 
@@ -45,7 +51,7 @@ k.scene("game", () => {
 
     // if duck exists, move it
     if (duck.exists()) {
-      duck.move(duckSpeed, 0);
+      duck.move(gameManager.duckSpeed, 0);
 
       // Duck escaped screen
       if (duck.pos.x > k.width()) {
@@ -53,7 +59,7 @@ k.scene("game", () => {
 
         duck = spawnDuck();
 
-        bullets = 3;
+        gameManager.bullets = 3;
         bulletText.text = "Bullets: 3";
       }
     }
@@ -63,26 +69,26 @@ k.scene("game", () => {
   // SHOOTING
   // -----------------------------
   k.onMousePress(() => {
-    if (bullets === 0) return; // No bullets? then stop. Prevent from negative values of bullets.
+    if (gameManager.bullets === 0) return; // No bullets? then stop. Prevent from negative values of bullets.
 
-    bullets--;
-    bulletText.text = "Bullets: " + bullets;
+    gameManager.bullets--;
+    bulletText.text = "Bullets: " + gameManager.bullets;
 
     if (duck.exists() && duck.isHovering()) {
       k.destroy(duck);
 
-      score++;
-      ducksShotThisRound++;
+      gameManager.score++;
+      gameManager.ducksShotThisRound++;
 
-      scoreText.text = "Score: " + score;
+      scoreText.text = "Score: " + gameManager.score;
 
       // Check if round finished
-      if (ducksShotThisRound >= 5) {
-        round++;
-        ducksShotThisRound = 0;
-        duckSpeed += 40;
+      if (gameManager.ducksShotThisRound >= 5) {
+        gameManager.round++;
+        gameManager.ducksShotThisRound = 0;
+        gameManager.duckSpeed += 40;
 
-        roundText.text = "Round: " + round;
+        roundText.text = "Round: " + gameManager.round;
 
         k.wait(1, () => {
           duck = spawnDuck();
@@ -91,23 +97,23 @@ k.scene("game", () => {
         duck = spawnDuck();
       }
 
-      bullets = 3;
+      gameManager.bullets = 3;
       bulletText.text = "Bullets: 3";
     }
 
     // If bullets finished and duck not hit
-    if (bullets === 0 && duck.exists()) {
+    if (gameManager.bullets === 0 && duck.exists()) {
       k.wait(0.5, () => {
         if (duck.exists()) {
           k.destroy(duck);
           duck = spawnDuck();
         }
 
-        bullets = 3;
+        gameManager.bullets = 3;
         bulletText.text = "Bullets: 3";
       });
     }
   });
 });
 
-k.go("game");
+k.go("menu");
