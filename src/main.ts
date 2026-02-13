@@ -1,16 +1,23 @@
 import k from "./kaplayCtx";
 
+function spawnDuck() {
+  return k.add([k.rect(40, 25), k.pos(0, k.rand(100, 200)), k.area(), "duck"]);
+}
+
 k.scene("game", () => {
   const cursor = k.add([k.circle(5), k.color(255, 0, 0), k.pos(k.mousePos())]);
 
+  let duck = spawnDuck();
+
   k.onUpdate(() => {
     cursor.moveTo(k.mousePos());
-  });
 
-  let duck = k.add([k.rect(40, 25), k.pos(50, 200), k.area(), "duck"]);
-
-  k.onUpdate(() => {
     duck.move(120, 0);
+
+    if (duck.pos.x > k.width()) {
+      k.destroy(duck);
+      duck = spawnDuck();
+    }
   });
 
   let score = 0;
@@ -19,10 +26,12 @@ k.scene("game", () => {
 
   k.onMousePress(() => {
     if (duck.isHovering()) {
-      k.destroy(duck);
-
       score++;
       scoreText.text = "Score: " + score;
+
+      k.destroy(duck);
+
+      duck = spawnDuck();
     }
   });
 });
